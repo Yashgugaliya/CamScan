@@ -1,0 +1,9 @@
+<resources>
+  <string name="app_name" translatable="false">CamScan</string>
+  <string name="add_tag_here">Add Tag here</string>
+  <string name="save">Save</string>
+  <string name="tag">Add Tag</string>
+  <string name="camerax">CameraX</string>
+  <string name="sorry_no_data_found">Sorry no data found</string>
+  <string name="something_went_wrong_please_try_again">Something went wrong! \nPlease try again.</string>
+</resources>
