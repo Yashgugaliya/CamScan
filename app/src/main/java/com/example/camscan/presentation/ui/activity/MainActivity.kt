@@ -12,7 +12,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.camscan.data.model.ScreenState
 import com.example.camscan.databinding.ActivityMainBinding
 import com.example.camscan.presentation.ui.adaptor.ImageAdaptor
@@ -50,6 +49,12 @@ class MainActivity : AppCompatActivity() {
     setUpRecyclerView()
     setUpCheckPermission()
     setUpObserver()
+  }
+
+  override fun onResume() {
+    super.onResume()
+    if (checkPermission())
+      viewModel.getAllImages()
   }
 
   private fun setUpRecyclerView() {
