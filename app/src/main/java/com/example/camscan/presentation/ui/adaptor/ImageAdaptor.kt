@@ -1,5 +1,6 @@
 package com.example.camscan.presentation.ui.adaptor
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -7,9 +8,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.camscan.data.model.ImageEntity
 import com.example.camscan.databinding.ItemImageBinding
-import com.example.camscan.presentation.util.BoxClick
 import com.example.camscan.presentation.util.ImageClick
-import com.example.camscan.presentation.util.load
+import com.example.camscan.presentation.util.loadImageFromPath
 
 class ImageAdaptor(private val listener: ImageClick) :
   ListAdapter<ImageEntity, RecyclerView.ViewHolder>(ImageComparator) {
@@ -40,15 +40,13 @@ class ImageViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
   fun setData(item: ImageEntity, po: Int) {
     with(binding) {
-      image.setOnBoxClickListener(object : BoxClick {
-        override fun invoke(pos: Int) {
+      Log.d("ImageAdaptor", "setData: $item")
+      image.loadImageFromPath(item.imagePath){
+        image.faceString = item.faceRectangles
+        image.setOriginalDimensions(item.width, item.height)
+        image.setOnBoxClickListener { pos ->
           listener(item.id, item.faceRectangles[pos].split(":")[4], pos)
         }
-      })
-      image.load(item.imagePath)
-      image.post {
-        image.setOriginalDimensions(item.width, item.height)
-        image.faceString = item.faceRectangles
       }
     }
   }

@@ -42,22 +42,16 @@ class ImageRepository @Inject constructor(
     val galleryImages = fetchGalleryImages()
     val processedImages = mutableListOf<ImageEntity>()
     for (image in galleryImages) {
-
-
       val existingImage = imageDao.getImageByPath(image.imagePath)
-
       if (existingImage == null) {
-        // Image is new, process and save it in the database
         processAndInsertImage(image)
       } else {
-        // Image already exists, no need to process
         processedImages.add(existingImage)
       }
     }
     ScreenState.Success(imageDao.getAllImages())
   } catch (e: Exception) {
     ScreenState.Error(e)
-
   }
 
   suspend fun getProcessedImage() =
@@ -102,7 +96,6 @@ class ImageRepository @Inject constructor(
     } else {
       imageDao.insertImage(image)
     }
-
     return image
   }
 
@@ -140,8 +133,6 @@ class ImageRepository @Inject constructor(
         val options = BitmapFactory.Options().apply {
           inJustDecodeBounds = true
         }
-
-
 
         BitmapFactory.decodeFile(path, options)
         val width = options.outWidth

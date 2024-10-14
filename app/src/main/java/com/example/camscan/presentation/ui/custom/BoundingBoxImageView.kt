@@ -6,7 +6,6 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import androidx.appcompat.widget.AppCompatImageView
 import com.example.camscan.presentation.util.BoxClick
@@ -24,7 +23,7 @@ class BoundingBoxImageView @JvmOverloads constructor(
   }
 
   private val textPaint = Paint().apply {
-    color = Color.WHITE
+    color = Color.GREEN
     textSize = 30f // Size of the text
     style = Paint.Style.FILL
   }
@@ -66,18 +65,21 @@ class BoundingBoxImageView @JvmOverloads constructor(
       // Calculate scale ratios
       val scaleX = viewWidth.toFloat() / originalWidth
       val scaleY = viewHeight.toFloat() / originalHeight
+      val scale = minOf(scaleX, scaleY)
+      val horizontalOffset = getHorizontalOffset(viewWidth, scale)
+      val verticalOffset = getVerticalOffset(viewHeight, scale)
+
       faceRectangles.forEach { rect ->
         index = faceRectangles.indexOf(rect)
         val scaledRect = Rect(
-          (rect.left * scaleX).toInt(),
-          (rect.top * scaleY).toInt(),
-          (rect.right * scaleX).toInt(),
-          (rect.bottom * scaleY).toInt()
+          (rect.left * scale + horizontalOffset).toInt(),
+          (rect.top * scale + verticalOffset).toInt(),
+          (rect.right * scale + horizontalOffset).toInt(),
+          (rect.bottom * scale + verticalOffset).toInt()
         )
 
         if (scaledRect.contains(touchX.toInt(), touchY.toInt())) {
           boxClickListener?.invoke(index)
-          Log.d("BoundingBoxImageView", "Box clicked: $boundingBoxText")
           return true
         }
       }
@@ -92,32 +94,32 @@ class BoundingBoxImageView @JvmOverloads constructor(
     if (intrinsicWidth == 0 || intrinsicHeight == 0 || faceRectangles.isEmpty()) {
       return // No dimensions or no rectangles
     }
-
     // Get current view size
     val viewWidth = width
     val viewHeight = height
     // Calculate scale ratios
     val scaleX = viewWidth.toFloat() / originalWidth
     val scaleY = viewHeight.toFloat() / originalHeight
+    val scale = minOf(scaleX, scaleY)
+    val horizontalOffset = getHorizontalOffset(viewWidth, scale)
+    val verticalOffset = getVerticalOffset(viewHeight, scale)
 
     // Scale and draw each rectangle
     faceRectangles.forEachIndexed { index, rect ->
       val scaledRect = Rect(
-        (rect.left * scaleX).toInt(),
-        (rect.top * scaleY).toInt(),
-        (rect.right * scaleX).toInt(),
-        (rect.bottom * scaleY).toInt()
+        (rect.left * scale + horizontalOffset).toInt(),
+        (rect.top * scale + verticalOffset).toInt(),
+        (rect.right * scale + horizontalOffset).toInt(),
+        (rect.bottom * scale + verticalOffset).toInt()
       )
       // Coerce to bounds
-      scaledRect.left = scaledRect.left.coerceIn(0, intrinsicWidth)
-      scaledRect.top = scaledRect.top.coerceIn(0, intrinsicHeight)
-      scaledRect.right = scaledRect.right.coerceIn(0, intrinsicWidth)
-      scaledRect.bottom = scaledRect.bottom.coerceIn(0, intrinsicHeight)
+      scaledRect.left = scaledRect.left.coerceIn(0, viewWidth)
+      scaledRect.top = scaledRect.top.coerceIn(0, viewHeight)
+      scaledRect.right = scaledRect.right.coerceIn(0, viewWidth)
+      scaledRect.bottom = scaledRect.bottom.coerceIn(0, viewHeight)
+
       canvas.drawRect(scaledRect, paint)
-
-      val text =
-        boundingBoxText[index] // Get the text corresponding to this rectangle
-
+      val text = boundingBoxText[index]
       val scaledLeft = (rect.left * scaleX).toInt()
       val scaledTop = (rect.top * scaleY).toInt()
 
@@ -125,16 +127,14 @@ class BoundingBoxImageView @JvmOverloads constructor(
       canvas.drawText(
         text,
         (scaledLeft).toFloat(),
-        (scaledTop - 20).toFloat(), // Adjust vertical offset for text positioning
+        (scaledTop - 20).toFloat(),
         textPaint
       )
-
     }
   }
 
   private fun getRect(lis: List<String>): List<Rect> {
     return lis.mapIndexed { index, rectString ->
-      // Split the rectString into its components (left, top, right, bottom, text)
       val coordinates = rectString.split(":")
 
       // Convert strings to integers to create the Rect
@@ -150,10 +150,26 @@ class BoundingBoxImageView @JvmOverloads constructor(
       } else {
         boundingBoxText.add(text)
       }
-
       Rect(left, top, right, bottom)
     }
   }
 
+  private fun getVerticalOffset(viewHeight: Int, scale: Float): Int {
+    val scaledHeight = (originalHeight * scale).toInt()
+    return if (scaledHeight < viewHeight) {
+      (viewHeight - scaledHeight) / 2
+    } else {
+      0
+    }
+  }
+
+  private fun getHorizontalOffset(viewWidth: Int, scale: Float): Int {
+    val scaledWidth = (originalWidth * scale).toInt()
+    return if (scaledWidth < viewWidth) {
+      (viewWidth - scaledWidth) / 2
+    } else {
+      0
+    }
+  }
 }
 
