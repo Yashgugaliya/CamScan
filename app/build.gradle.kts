@@ -76,12 +76,6 @@ dependencies {
   implementation("com.google.mediapipe:tasks-vision:0.10.14")
   implementation("androidx.fragment:fragment-ktx:1.6.2")
 
-/*  // MediaPipe dependencies
-  implementation("com.google.mediapipe:mediapipe-framework:0.8.10")
-  implementation("com.google.mediapipe:mediapipe-holistic:0.8.10")
-  implementation("com.google.mediapipe:mediapipe-android:0.9.0")
-  implementation("com.google.mediapipe:mediapipe-android-facemesh:0.9.0")*/
-
   // Coil for image loading
   implementation("io.coil-kt:coil:2.3.0")
 

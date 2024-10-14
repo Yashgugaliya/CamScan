@@ -1,4 +1,4 @@
-package com.example.camscan
+package com.example.camscan.presentation.ui.activity
 
 import android.Manifest
 import android.content.Intent
@@ -12,6 +12,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.camscan.data.model.ScreenState
 import com.example.camscan.databinding.ActivityMainBinding
 import com.example.camscan.presentation.ui.adaptor.ImageAdaptor
@@ -73,12 +74,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         is ScreenState.Success -> {
+          loaderView.hideLoading()
           if (state.data.isNotEmpty()) {
             binding.recyclerView.visible()
             binding.emptyView.gone()
             binding.errorView.gone()
             imageAdapter.submitList(state.data)
-            loaderView.hideLoading()
           } else {
             binding.emptyView.visible()
             binding.recyclerView.gone()
