@@ -22,6 +22,9 @@ import com.example.camscan.presentation.util.visible
 import com.example.camscan.presentation.viewmodel.ImageViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -49,6 +52,7 @@ class MainActivity : AppCompatActivity() {
     setUpRecyclerView()
     setUpCheckPermission()
     setUpObserver()
+
   }
 
   override fun onResume() {
@@ -72,53 +76,63 @@ class MainActivity : AppCompatActivity() {
   }
 
   private fun setUpObserver() {
-    viewModel.images.observe(this) { state ->
-      when (state) {
-        is ScreenState.Loading -> {
-          loaderView.showLoading()
-        }
 
-        is ScreenState.Success -> {
-          loaderView.hideLoading()
-          if (state.data.isNotEmpty()) {
-            binding.recyclerView.visible()
-            binding.emptyView.gone()
-            binding.errorView.gone()
-            imageAdapter.submitList(state.data)
-          } else {
-            binding.emptyView.visible()
-            binding.recyclerView.gone()
-            binding.errorView.gone()
+    CoroutineScope(Dispatchers.Main).launch {
+      viewModel.images.collect { state ->
+        when (state) {
+          is ScreenState.Loading -> {
+            Log.d("", "setUpObserver:ddd ")
+            loaderView.showLoading()
           }
-        }
 
-        is ScreenState.Error -> {
-          loaderView.hideLoading()
-          binding.recyclerView.gone()
-          binding.errorView.visible()
-          binding.emptyView.gone()
+          is ScreenState.Success -> {
+            loaderView.hideLoading()
+            if (state.data.isNotEmpty()) {
+              binding.recyclerView.visible()
+              binding.emptyView.gone()
+              binding.errorView.gone()
+              imageAdapter.submitList(state.data)
+            } else {
+              binding.emptyView.visible()
+              binding.recyclerView.gone()
+              binding.errorView.gone()
+            }
+          }
+
+          is ScreenState.Error -> {
+            loaderView.hideLoading()
+            binding.recyclerView.gone()
+            binding.errorView.visible()
+            binding.emptyView.gone()
+          }
+
+          else -> {}
         }
       }
     }
 
-    viewModel.imageUpdate.observe(this) { state ->
-      when (state) {
-        is ScreenState.Loading -> {
-          // Show loading state
-        }
+    CoroutineScope(Dispatchers.Main).launch {
+      viewModel.imageUpdate.collect { state ->
+        when (state) {
+          is ScreenState.Loading -> {
 
-        is ScreenState.Success -> {
-          // Show success state
-          val list = imageAdapter.currentList.toMutableList()
-          val index = list.indexOfFirst { it.id == state.data.id }
-          list[index] = state.data
-          Log.d("AddTagBottomSheet", "Updated Image: $list")
-          imageAdapter.submitList(list)
-        }
+          }
 
-        is ScreenState.Error -> {
-          // Show error state
-          Log.d("AddTagBottomSheet", "Error: ${state.exception}")
+          is ScreenState.Success -> {
+            // Show success state
+            val list = imageAdapter.currentList.toMutableList()
+            val index = list.indexOfFirst { it.id == state.data.id }
+            list[index] = state.data
+            Log.d("AddTagBottomSheet", "Updated Image: $list")
+            imageAdapter.submitList(list)
+          }
+
+          is ScreenState.Error -> {
+            // Show error state
+            Log.d("AddTagBottomSheet", "Error: ${state.exception}")
+          }
+
+          else -> {}
         }
       }
     }

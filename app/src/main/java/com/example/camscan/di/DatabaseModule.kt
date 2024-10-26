@@ -1,6 +1,5 @@
 package com.example.camscan.di
 
-import android.app.Application
 import android.content.Context
 import androidx.room.Room
 import com.example.camscan.data.local.ImageDao
@@ -29,12 +28,6 @@ object DatabaseModule {
   @Singleton
   fun provideImageShotDao(database: ImageDatabase): ImageDao {
     return database.imageDao()
-  }
-
-  @Provides
-  @Singleton
-  fun provideApplicationContext(application: Application): Context {
-    return application.applicationContext
   }
 
 }

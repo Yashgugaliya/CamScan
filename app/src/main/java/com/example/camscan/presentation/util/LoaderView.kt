@@ -4,6 +4,7 @@ import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.util.Log
 import android.view.Window
 import com.example.camscan.R
 
@@ -14,6 +15,7 @@ class LoaderView(private val context: Context) {
     setupDialog()
   }
   private fun setupDialog() {
+    Log.d("Yash", "setupDialog: ")
     dialog = Dialog(context).apply {
       requestWindowFeature(Window.FEATURE_NO_TITLE)
       setContentView(R.layout.loader_view)
